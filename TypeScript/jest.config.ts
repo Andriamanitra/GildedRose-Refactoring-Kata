@@ -1,5 +1,5 @@
-import { pathsToModuleNameMapper } from  "ts-jest";
-import { compilerOptions } from './tsconfig.json'
+import { pathsToModuleNameMapper } from  "ts-jest/utils";
+const { compilerOptions } = require("./tsconfig");
 
 export default {
   roots: ['<rootDir>/app', '<rootDir>/test/jest'],

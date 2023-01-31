@@ -2419,12 +2419,12 @@ verifyAllCombinations(Converter&& converter, const Containers&... inputs)
 
 #ifdef APPROVALS_CATCH
 
-#include <catch2/catch_all.hpp>
+#include <Catch.hpp>
 
 //namespace ApprovalTests {
-struct Catch2ApprovalListener : Catch::EventListenerBase {
+struct Catch2ApprovalListener : Catch::TestEventListenerBase {
     ApprovalTests::TestName currentTest;
-    using EventListenerBase::EventListenerBase; // This using allows us to use all base-class constructors
+    using TestEventListenerBase::TestEventListenerBase; // This using allows us to use all base-class constructors
     virtual void testCaseStarting(Catch::TestCaseInfo const &testInfo) override {
 
         currentTest.setFileName(testInfo.lineInfo.file);
@@ -2452,8 +2452,8 @@ CATCH_REGISTER_LISTENER(Catch2ApprovalListener)
 #ifdef TEST_COMMIT_REVERT_CATCH
 
 //namespace ApprovalTests {
-struct Catch2TestCommitRevert : Catch::EventListenerBase {
-    using EventListenerBase::EventListenerBase; // This using allows us to use all base-class constructors
+struct Catch2TestCommitRevert : Catch::TestEventListenerBase {
+    using TestEventListenerBase::TestEventListenerBase; // This using allows us to use all base-class constructors
     virtual void  testRunEnded( Catch::TestRunStats const& testRunStats )override{
         bool commit = testRunStats.totals.testCases.allOk();
         std::string message = "r ";
