@@ -36,44 +36,38 @@ function update_quality!(item::AbstractItem)
     update_quality!(item.item)
 end
 
+function update_quality!(item::Item, change)
+    item.quality = clamp(item.quality + change, 0:50)
+end
+
 function update_quality!(item::Item)
-    if item.name != "Aged Brie" && item.name != "Backstage passes to a TAFKAL80ETC concert"
-        if item.quality > 0
-            item.quality = item.quality - 1
+    if item.name == "Aged Brie"
+        update_quality!(item, +1)
+    elseif item.name == "Backstage passes to a TAFKAL80ETC concert"
+        update_quality!(item, +1)
+        if item.name == "Backstage passes to a TAFKAL80ETC concert"
+            if item.sellin < 11
+                update_quality!(item, +1)
+            end
+            if item.sellin < 6
+                update_quality!(item, +1)
+            end
         end
     else
-        if item.quality < 50
-            item.quality = item.quality + 1
-            if item.name == "Backstage passes to a TAFKAL80ETC concert"
-                if item.sellin < 11
-                    if item.quality < 50
-                        item.quality = item.quality + 1
-                    end
-                end
-                if item.sellin < 6
-                    if item.quality < 50
-                        item.quality = item.quality + 1
-                    end
-                end
-            end
-        end
+        update_quality!(item, -1)
     end
-    item.sellin = item.sellin - 1
-    if item.sellin < 0
-        if item.name != "Aged Brie"
-            if item.name != "Backstage passes to a TAFKAL80ETC concert"
-                if item.quality > 0
-                    item.quality = item.quality - 1
-                end
-            else
-                item.quality = item.quality - item.quality
-            end
+    if item.sellin <= 0
+        if item.name == "Aged Brie"
+            update_quality!(item, +1)
         else
-            if item.quality < 50
-                item.quality = item.quality + 1
+            if item.name == "Backstage passes to a TAFKAL80ETC concert"
+                item.quality = 0
+            else
+                update_quality!(item, -1)
             end
         end
     end
+    item.sellin -= 1
 end
 
 function update_quality!(gr::GildedRose)
