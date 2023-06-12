@@ -16,13 +16,25 @@ struct LegendaryItem <: AbstractItem
     item::Item{Int64}
 end
 
+struct BackstagePass <: AbstractItem
+    item::Item{Int64}
+end
+
+struct AgedBrie <: AbstractItem
+    item::Item{Int64}
+end
+
 Base.show(io::IO, x::Item) = print(io, "$(x.name), $(x.sellin), $(x.quality)")
 Base.show(io::IO, x::AbstractItem) = Base.show(io, x.item)
 
 struct GildedRose
     items
     function GildedRose(items)
-        item_types = Dict("Sulfuras, Hand of Ragnaros" => LegendaryItem)
+        item_types = Dict(
+            "Aged Brie" => AgedBrie,
+            "Backstage passes to a TAFKAL80ETC concert" => BackstagePass,
+            "Sulfuras, Hand of Ragnaros" => LegendaryItem,
+        )
         make_item(x) = get(item_types, x.name, RegularItem)(x)
         new(make_item.(items))
     end
@@ -32,8 +44,29 @@ function update_quality!(::LegendaryItem)
     # Legendary items never change
 end
 
-function update_quality!(item::AbstractItem)
-    update_quality!(item.item)
+function update_quality!(some_item::AbstractItem)
+    item = some_item.item
+    update_quality!(item, is_expired(item) ? -2 : -1)
+    item.sellin -= 1
+end
+
+function update_quality!(brie::AgedBrie)
+    update_quality!(brie.item, is_expired(brie.item) ? +2 : +1)
+    brie.item.sellin -= 1
+end
+
+function update_quality!(backstagepass::BackstagePass)
+    item = backstagepass.item
+    if is_expired(item)
+        item.quality = 0
+    elseif item.sellin < 6
+        update_quality!(backstagepass.item, +3)
+    elseif item.sellin < 11
+        update_quality!(backstagepass.item, +2)
+    else
+        update_quality!(backstagepass.item, +1)
+    end
+    item.sellin -= 1
 end
 
 function update_quality!(item::Item, change)
