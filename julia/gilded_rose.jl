@@ -6,58 +6,78 @@ mutable struct Item{T<:Integer}
     quality::T
 end
 
+abstract type AbstractItem end
+
+struct RegularItem <: AbstractItem
+    item::Item{Int64}
+end
+
+struct LegendaryItem <: AbstractItem
+    item::Item{Int64}
+end
+
 Base.show(io::IO, x::Item) = print(io, "$(x.name), $(x.sellin), $(x.quality)")
+Base.show(io::IO, x::AbstractItem) = Base.show(io, x.item)
 
 struct GildedRose
     items
+    function GildedRose(items)
+        item_types = Dict("Sulfuras, Hand of Ragnaros" => LegendaryItem)
+        make_item(x) = get(item_types, x.name, RegularItem)(x)
+        new(make_item.(items))
+    end
 end
 
-function update_quality!(gr::GildedRose)
-    for item in gr.items
-        if item.name != "Aged Brie" && item.name != "Backstage passes to a TAFKAL80ETC concert"
-            if item.quality > 0
-                if item.name != "Sulfuras, Hand of Ragnaros"
-                    item.quality = item.quality - 1
-                end
-            end
-        else
-            if item.quality < 50
-                item.quality = item.quality + 1
-                if item.name == "Backstage passes to a TAFKAL80ETC concert"
-                    if item.sellin < 11
-                        if item.quality < 50
-                            item.quality = item.quality + 1
-                        end
-                    end
-                    if item.sellin < 6
-                        if item.quality < 50
-                            item.quality = item.quality + 1
-                        end
-                    end
-                end
-            end
+function update_quality!(::LegendaryItem)
+    # Legendary items never change
+end
+
+function update_quality!(item::AbstractItem)
+    update_quality!(item.item)
+end
+
+function update_quality!(item::Item)
+    if item.name != "Aged Brie" && item.name != "Backstage passes to a TAFKAL80ETC concert"
+        if item.quality > 0
+            item.quality = item.quality - 1
         end
-        if item.name != "Sulfuras, Hand of Ragnaros"
-            item.sellin = item.sellin - 1
-        end
-        if item.sellin < 0
-            if item.name != "Aged Brie"
-                if item.name != "Backstage passes to a TAFKAL80ETC concert"
-                    if item.quality > 0
-                        if item.name != "Sulfuras, Hand of Ragnaros"
-                            item.quality = item.quality - 1
-                        end
+    else
+        if item.quality < 50
+            item.quality = item.quality + 1
+            if item.name == "Backstage passes to a TAFKAL80ETC concert"
+                if item.sellin < 11
+                    if item.quality < 50
+                        item.quality = item.quality + 1
                     end
-                else
-                    item.quality = item.quality - item.quality
                 end
-            else
-                if item.quality < 50
-                    item.quality = item.quality + 1
+                if item.sellin < 6
+                    if item.quality < 50
+                        item.quality = item.quality + 1
+                    end
                 end
             end
         end
     end
+    item.sellin = item.sellin - 1
+    if item.sellin < 0
+        if item.name != "Aged Brie"
+            if item.name != "Backstage passes to a TAFKAL80ETC concert"
+                if item.quality > 0
+                    item.quality = item.quality - 1
+                end
+            else
+                item.quality = item.quality - item.quality
+            end
+        else
+            if item.quality < 50
+                item.quality = item.quality + 1
+            end
+        end
+    end
+end
+
+function update_quality!(gr::GildedRose)
+    update_quality!.(gr.items)
     return nothing
 end
 
