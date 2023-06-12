@@ -70,6 +70,10 @@ function update_quality!(backstagepass::BackstagePass)
 end
 
 function update_quality!(item::Item, change)
+    # Conjured items decay twice as fast
+    if startswith(item.name, "Conjured")
+        change *= 2
+    end
     item.quality = clamp(item.quality + change, 0:50)
 end
 
