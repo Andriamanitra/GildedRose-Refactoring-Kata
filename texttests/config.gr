@@ -21,7 +21,7 @@ diff_program:meld
 #interpreter:ruby
 
 # Settings for the C# version
-#executable:${TEXTTEST_HOME}/GildedRose.exe
+#executable:${TEXTTEST_HOME}/csharp/bin/Debug/csharp.exe
 
 # Settings for the Perl version
 #executable:${TEXTTEST_HOME}/perl/texttest_fixture.pl
@@ -30,5 +30,9 @@ diff_program:meld
 # Settings for the TypeScript version
 #executable:${TEXTTEST_HOME}/TypeScript/test/golden-master-text-test.js
 #interpreter:node
+
+# Settings for the Julia version
+#executable:${TEXTTEST_HOME}/julia/texttest_fixture.jl
+#interpreter:julia
 
 filename_convention_scheme:standard
