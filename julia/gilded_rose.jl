@@ -40,9 +40,11 @@ function update_quality!(item::Item, change)
     item.quality = clamp(item.quality + change, 0:50)
 end
 
+is_expired(item::Item) = item.sellin <= 0
+
 function update_quality!(item::Item)
     if item.name == "Aged Brie"
-        update_quality!(item, +1)
+        update_quality!(item, is_expired(item) ? +2 : +1)
     elseif item.name == "Backstage passes to a TAFKAL80ETC concert"
         update_quality!(item, +1)
         if item.name == "Backstage passes to a TAFKAL80ETC concert"
@@ -53,19 +55,11 @@ function update_quality!(item::Item)
                 update_quality!(item, +1)
             end
         end
-    else
-        update_quality!(item, -1)
-    end
-    if item.sellin <= 0
-        if item.name == "Aged Brie"
-            update_quality!(item, +1)
-        else
-            if item.name == "Backstage passes to a TAFKAL80ETC concert"
-                item.quality = 0
-            else
-                update_quality!(item, -1)
-            end
+        if is_expired(item)
+            item.quality = 0
         end
+    else
+        update_quality!(item, is_expired(item) ? -2 : -1)
     end
     item.sellin -= 1
 end
